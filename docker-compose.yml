@@ -63,6 +63,7 @@ services:
   db-init:
     command: ["/bin/sh", "-c", "test -e /init/initdb.sql && echo 'init file already exists' || /opt/guacamole/bin/initdb.sh --mysql > /init/initdb.sql" ]
     image: guacamole/guacamole:${GUACAMOLE_VERSION}
+    user: root
     volumes:
       - db-init:/init
 
