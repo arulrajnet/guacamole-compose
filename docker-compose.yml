@@ -115,7 +115,7 @@ services:
     networks:
       *networkName:
     ports:
-      - ${NGINX_HTTP_PORT}:${NGINX_HTTP_PORT}
+      - 8080:${NGINX_HTTP_PORT}
     restart: on-failure
     volumes:
       - ./upstream.conf.template:/etc/nginx/templates/default.conf.template
