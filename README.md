@@ -9,6 +9,7 @@
   - [How to Use](#how-to-use)
   - [Architecture](#architecture)
   - [Version Information](#version-information)
+  - [Previous Releases](#previous-releases)
   - [Key Features](#key-features)
   - [Author](#author)
 
@@ -42,9 +43,14 @@ Refer to the [Guacamole documentation](https://guacamole.apache.org/doc/gug/guac
 
 The following versions are used in this setup:
 
-* Guacamole 1.3.0
+* Guacamole 1.4.0
 * MySQL 8.0.26
 * Nginx 1.21.1
+
+## Previous Releases
+
+- [v1.3.0](https://github.com/arulrajnet/guacamole-compose/releases/tag/v1.3.0)
+
 
 ## Key Features
 
