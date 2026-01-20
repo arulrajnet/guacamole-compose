@@ -138,6 +138,8 @@ services:
     ports:
       - 2222
     restart: on-failure
+    profiles:
+      - devices
 
   # RDP Connection.
   # The Default USERNAME and PASSWORD is: abc/abc
@@ -147,12 +149,16 @@ services:
       PUID: 1000
       PGID: 1000
       TZ: Asia/Kolkata
-    image: linuxserver/rdesktop:latest
+    image: arulrajnet/rdesktop:ubuntu-xfce
+    build:
+      context: ./rdesktop
     networks:
      *networkName:
     ports:
       - 3389
     restart: on-failure
+    profiles:
+      - devices
 
   guacamole-init:
     <<: *default
@@ -165,6 +171,8 @@ services:
       GUACAMOLE_PORT: 8080
     image: curlimages/curl:7.78.0
     restart: on-failure
+    profiles:
+      - devices
     user: root
     volumes:
       - ./guacamole-connection-init.sh:/guacamole-connection-init.sh

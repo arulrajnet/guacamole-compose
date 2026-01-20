@@ -28,10 +28,33 @@ This is a Docker Compose stack that includes:
 
 ## How to Use
 
-1. Clone this repository
-2. Run `docker-compose up -d`
-3. Navigate to http://localhost:8080/
-4. Login with username: `guacadmin` and password: `guacadmin`
+### Start Guacamole
+
+To start Guacamole without the test devices (openssh, rdesktop):
+
+```bash
+docker compose up -d
+```
+
+### Start Guacamole with Test Devices
+
+To start Guacamole along with `openssh` and `rdesktop` containers for testing:
+
+```bash
+docker compose --profile devices up -d
+```
+
+### Validation
+
+1.  **Access Guacamole**: Open your browser and navigate to `http://localhost:8080/`.
+2.  **Login**: Use default credentials:
+    -   Username: `guacadmin`
+    -   Password: `guacadmin`
+3.  **Verify Connections**:
+    -   You should see `openssh-ssh` and `rdesktop-rdp` connections if you started with the `devices` profile.
+    -   Click on them to verify connectivity.
+4.  **Verify SFTP**:
+    -   The connections remain configured with SFTP support enabled.
 
 ## Architecture
 

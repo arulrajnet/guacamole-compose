@@ -7,10 +7,10 @@ set -e
 # set -x
 
 # Guacamole properties
-GUCAMOLE_HOST="${GUCAMOLE_HOST:-guacamole}"
-GUCAMOLE_PORT="${GUCAMOLE_PORT:-8080}"
-GUCAMOLE_USER="${GUCAMOLE_USER:-guacadmin}"
-GUCAMOLE_PASSWORD="${GUCAMOLE_PASSWORD:-guacadmin}"
+GUACAMOLE_HOST="${GUACAMOLE_HOST:-guacamole}"
+GUACAMOLE_PORT="${GUACAMOLE_PORT:-8080}"
+GUACAMOLE_USER="${GUACAMOLE_USER:-guacadmin}"
+GUACAMOLE_PASSWORD="${GUACAMOLE_PASSWORD:-guacadmin}"
 
 # Connection properties
 SSH_HOST="${SSH_HOST:-openssh}"
@@ -22,30 +22,105 @@ RDP_PORT="${RDP_PORT:-3389}"
 RDP_USERNAME="${RDP_USERNAME:-abc}"
 RDP_PASSWORD="${RDP_PASSWORD:-abc}"
 
-# Login
-loginResponse=$(curl -s \
--d username=$GUCAMOLE_USER \
--d password=$GUCAMOLE_PASSWORD \
-http://$GUCAMOLE_HOST:$GUCAMOLE_PORT/guacamole/api/tokens)
-authToken=$(echo $loginResponse | jq -r '.authToken')
-dataSource=$(echo $loginResponse | jq -r '.dataSource')
+# SFTP properties
+SFTP_DISABLE_DOWNLOAD="${SFTP_DISABLE_DOWNLOAD:-false}"
+SFTP_DISABLE_UPLOAD="${SFTP_DISABLE_UPLOAD:-false}"
 
-anyConnectionPresent=$(curl -s -X GET http://$GUCAMOLE_HOST:$GUCAMOLE_PORT/guacamole/api/session/data/$dataSource/connections?token=$authToken | jq -r '.[] | .name')
+API_URL="http://$GUACAMOLE_HOST:$GUACAMOLE_PORT/guacamole/api"
 
-if [ -z "$anyConnectionPresent" ]; then
+# Improved Login & DataSource retrieval
+login_and_get_details() {
+     response=$(curl -s -d username="$GUACAMOLE_USER" -d password="$GUACAMOLE_PASSWORD" "$API_URL/tokens")
+     echo "$response"
+}
 
-  # Create SSH connection
-  curl -s -X POST http://$GUCAMOLE_HOST:$GUCAMOLE_PORT/guacamole/api/session/data/$dataSource/connections?token=$authToken \
-    -H 'Content-Type: application/json' \
-    -d "{ \"parentIdentifier\": \"ROOT\", \"name\": \"openssh-ssh\", \"protocol\": \"ssh\", \"parameters\": { \"port\": \"${SSH_PORT}\", \"hostname\": \"${SSH_HOST}\", \"username\": \"${SSH_USERNAME}\", \"password\": \"${SSH_PASSWORD}\" }, \"attributes\": {} }"
+create_connection() {
+    local auth_token="$1"
+    local data_source="$2"
+    local payload="$3"
 
-  # Create RDP connection
-  curl -s -X POST http://$GUCAMOLE_HOST:$GUCAMOLE_PORT/guacamole/api/session/data/$dataSource/connections?token=$authToken \
-    -H 'Content-Type: application/json' \
-    -d "{ \"parentIdentifier\": \"ROOT\", \"name\": \"rdesktop-rdp\", \"protocol\": \"rdp\", \"parameters\": { \"port\": \"${RDP_PORT}\", \"hostname\": \"${RDP_HOST}\", \"username\": \"${RDP_USERNAME}\", \"password\": \"${RDP_PASSWORD}\", \"ignore-cert\": \"true\" }, \"attributes\": {} }"
+    curl -s -X POST "$API_URL/session/data/$data_source/connections?token=$auth_token" \
+        -H 'Content-Type: application/json' \
+        -d "$payload"
+}
+
+delete_token() {
+    local auth_token="$1"
+    curl -s -X DELETE "$API_URL/tokens/$auth_token"
+}
+
+# Main Execution
+login_response=$(login_and_get_details)
+auth_token=$(echo "$login_response" | jq -r '.authToken')
+data_source=$(echo "$login_response" | jq -r '.dataSource')
+
+existing_connections=$(curl -s -X GET "$API_URL/session/data/$data_source/connections?token=$auth_token" | jq -r '.[] | .name')
+
+if [ -z "$existing_connections" ]; then
+    echo "Creating connections..."
+
+    # Create SSH connection
+    ssh_payload=$(jq -n \
+        --arg parentIdentifier "ROOT" \
+        --arg name "openssh-ssh" \
+        --arg protocol "ssh" \
+        --arg port "$SSH_PORT" \
+        --arg hostname "$SSH_HOST" \
+        --arg username "$SSH_USERNAME" \
+        --arg password "$SSH_PASSWORD" \
+        --arg sftp_disable_download "$SFTP_DISABLE_DOWNLOAD" \
+        --arg sftp_disable_upload "$SFTP_DISABLE_UPLOAD" \
+        '{
+            parentIdentifier: $parentIdentifier,
+            name: $name,
+            protocol: $protocol,
+            parameters: {
+                port: $port,
+                hostname: $hostname,
+                username: $username,
+                password: $password,
+                "enable-sftp": "true",
+                "sftp-disable-download": $sftp_disable_download,
+                "sftp-disable-upload": $sftp_disable_upload
+            },
+            attributes: {}
+        }')
+    create_connection "$auth_token" "$data_source" "$ssh_payload"
+
+    # Create RDP connection
+    rdp_payload=$(jq -n \
+        --arg parentIdentifier "ROOT" \
+        --arg name "rdesktop-rdp" \
+        --arg protocol "rdp" \
+        --arg port "$RDP_PORT" \
+        --arg hostname "$RDP_HOST" \
+        --arg username "$RDP_USERNAME" \
+        --arg password "$RDP_PASSWORD" \
+        --arg sftp_disable_download "$SFTP_DISABLE_DOWNLOAD" \
+        --arg sftp_disable_upload "$SFTP_DISABLE_UPLOAD" \
+        '{
+            parentIdentifier: $parentIdentifier,
+            name: $name,
+            protocol: $protocol,
+            parameters: {
+                port: $port,
+                hostname: $hostname,
+                username: $username,
+                password: $password,
+                "ignore-cert": "true",
+                "enable-sftp": "true",
+                "sftp-username": $username,
+                "sftp-password": $password,
+                "sftp-disable-download": $sftp_disable_download,
+                "sftp-disable-upload": $sftp_disable_upload
+            },
+            attributes: {}
+        }')
+    create_connection "$auth_token" "$data_source" "$rdp_payload"
+
 else
-  echo "connections are already present."
+    echo "Connections are already present."
 fi
 
 # Logout
-curl -s -X DELETE http://$GUCAMOLE_HOST:$GUCAMOLE_PORT/guacamole/api/tokens/$authToken
+delete_token "$auth_token"
