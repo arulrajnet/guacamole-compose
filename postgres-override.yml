@@ -1,0 +1,44 @@
+x-dbenv:
+  - &dbUser ${DB_USER}
+  - &dbPass ${DB_PASSWORD}
+  - &dbDatabaseName ${DB_NAME}
+
+services:
+
+  db:
+    environment: !override
+      PGDATA: /data/postgres
+      POSTGRES_USER: *dbUser
+      POSTGRES_PASSWORD: *dbPass
+      POSTGRES_DB: *dbDatabaseName
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", *dbDatabaseName]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      start_period: 1m
+    image: postgres:${POSTGRES_VERSION}
+    ports:
+      - 5432
+    restart: on-failure
+    volumes:
+      - db-init:/docker-entrypoint-initdb.d:ro
+      - db-data:/data/postgres:rw
+
+  db-init:
+    command: ["/bin/sh", "-c", "test -e /init/initdb.sql && echo 'init file already exists' || /opt/guacamole/bin/initdb.sh --postgresql > /init/initdb.sql" ]
+    image: guacamole/guacamole:${GUACAMOLE_VERSION}
+    user: root
+    volumes:
+      - db-init:/init
+
+  guacamole:
+    environment: !override
+      JAVA_OPTS: -Xms1024m -Xmx2048m -XX:MetaspaceSize=96M -XX:MaxMetaspaceSize=256m -XX:+CrashOnOutOfMemoryError
+      GUACD_HOSTNAME: guacd
+      POSTGRESQL_HOSTNAME: db
+      POSTGRESQL_DATABASE: *dbDatabaseName
+      POSTGRESQL_USERNAME: *dbUser
+      POSTGRESQL_PASSWORD: *dbPass
+      # Set the log level for guacamole
+      LOGBACK_LEVEL: DEBUG

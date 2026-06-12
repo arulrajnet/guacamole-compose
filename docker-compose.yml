@@ -7,9 +7,9 @@ x-default: &default
     - 1.0.0.1
 
 x-dbenv:
-  - &dbUser admin
-  - &dbPass secret
-  - &dbDatabaseName guacamole
+  - &dbUser ${DB_USER}
+  - &dbPass ${DB_PASSWORD}
+  - &dbDatabaseName ${DB_NAME}
 
 networks:
   *networkName:
@@ -142,14 +142,14 @@ services:
       - devices
 
   # RDP Connection.
-  # The Default USERNAME and PASSWORD is: abc/abc
+  # RDP device. Username: ubuntu Password: ubuntu
   rdesktop:
     <<: *default
     environment:
       PUID: 1000
       PGID: 1000
       TZ: Asia/Kolkata
-    image: arulrajnet/rdesktop:ubuntu-xfce
+    image: danielguerra/ubuntu-xrdp:latest
     build:
       context: ./rdesktop
     networks:
