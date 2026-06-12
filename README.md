@@ -27,7 +27,7 @@ This is a Docker Compose stack that includes:
 ## Prerequisites
 
 * Docker 19.03.13 or latest
-* Docker compose 1.29.2 or latest
+* Docker compose v2.24.4 or latest
 
 ## How to Use
 
