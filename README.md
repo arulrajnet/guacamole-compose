@@ -7,6 +7,9 @@
   - [Overview](#overview)
   - [Prerequisites](#prerequisites)
   - [How to Use](#how-to-use)
+    - [Start Guacamole](#start-guacamole)
+    - [Start Guacamole with Test Devices](#start-guacamole-with-test-devices)
+    - [Validation](#validation)
   - [Architecture](#architecture)
   - [Version Information](#version-information)
   - [Previous Releases](#previous-releases)
@@ -24,11 +27,20 @@ This is a Docker Compose stack that includes:
 ## Prerequisites
 
 * Docker 19.03.13 or latest
-* Docker compose 1.29.2 or latest
+* Docker compose v2.24.4 or latest
 
 ## How to Use
 
 ### Start Guacamole
+
+To use postgres instead of MySQL.
+
+```bash
+ln -sf postgres-override.yml docker-compose.override.yml
+```
+Ignore this step if you want to use MySQL.
+
+Note: `docker compose version` has to be greater than v2.24.4 for the override to work.
 
 To start Guacamole without the test devices (openssh, rdesktop):
 
@@ -68,6 +80,7 @@ The following versions are used in this setup:
 
 * Guacamole 1.6.0
 * MySQL 8.0.26
+* PosgreSQL 16.4-alpine
 * Nginx 1.21.1
 
 ## Previous Releases
