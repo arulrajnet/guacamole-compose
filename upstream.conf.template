@@ -9,6 +9,24 @@ server {
   listen $NGINX_HTTP_PORT default_server;
   server_name $NGINX_HOST;
 
+  # Large file upload support
+  # Raise max body size (0 = unlimited; or use e.g. 500m for a hard cap)
+  client_max_body_size 0;
+
+  # Buffer size for reading the initial portion of the request body
+  client_body_buffer_size 128k;
+
+  # Stream the request body directly to upstream instead of buffering the
+  # whole file in nginx first — critical for large SFTP/Guacamole uploads
+  proxy_request_buffering off;
+
+  # Disable response buffering so data flows back to the client immediately
+  proxy_buffering off;
+
+  # Extend timeouts to accommodate slow large-file transfers
+  proxy_read_timeout 600s;
+  proxy_send_timeout 600s;
+
   location / {
     sendfile off;
     proxy_pass http://backend_service/guacamole/;
