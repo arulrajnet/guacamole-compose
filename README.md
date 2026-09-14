@@ -85,9 +85,10 @@ The following versions are used in this setup:
 
 ## Previous Releases
 
-- [v1.3.0](https://github.com/arulrajnet/guacamole-compose/releases/tag/v1.3.0)
-- [v1.4.0](https://github.com/arulrajnet/guacamole-compose/releases/tag/v1.4.0)
-- [v1.5.5](https://github.com/arulrajnet/guacamole-compose/releases/tag/v1.5.5)
+- [v1.3.0](https://github.com/arulrajnet/guacamole-compose/tree/v1.3.0)
+- [v1.4.0](https://github.com/arulrajnet/guacamole-compose/tree/v1.4.0)
+- [v1.5.5](https://github.com/arulrajnet/guacamole-compose/tree/v1.5.5)
+- [v1.6.0](https://github.com/arulrajnet/guacamole-compose/tree/v1.6.0)
 
 ## Key Features
 
