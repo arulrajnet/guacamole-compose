@@ -147,7 +147,7 @@ services:
       PUID: 1000
       PGID: 1000
       TZ: Asia/Kolkata
-    image: linuxserver/rdesktop:latest
+    image: linuxserver/rdesktop:ubuntu-xfce
     networks:
      *networkName:
     ports:
@@ -163,7 +163,7 @@ services:
     environment:
       GUACAMOLE_HOST: guacamole
       GUACAMOLE_PORT: 8080
-    image: curlimages/curl:7.78.0
+    image: curlimages/curl:8.21.0
     restart: on-failure
     user: root
     volumes:

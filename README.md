@@ -44,14 +44,15 @@ Refer to the [Guacamole documentation](https://guacamole.apache.org/doc/gug/guac
 The following versions are used in this setup:
 
 * Guacamole 1.6.0
-* MySQL 8.0.26
-* Nginx 1.21.1
+* MySQL 8.4.11
+* Nginx 1.21.6
 
 ## Previous Releases
 
-- [v1.3.0](https://github.com/arulrajnet/guacamole-compose/releases/tag/v1.3.0)
-- [v1.4.0](https://github.com/arulrajnet/guacamole-compose/releases/tag/v1.4.0)
-- [v1.5.5](https://github.com/arulrajnet/guacamole-compose/releases/tag/v1.5.5)
+- [v1.3.0](https://github.com/arulrajnet/guacamole-compose/tree/v1.3.0)
+- [v1.4.0](https://github.com/arulrajnet/guacamole-compose/tree/v1.4.0)
+- [v1.5.5](https://github.com/arulrajnet/guacamole-compose/tree/v1.5.5)
+- [v1.6.0](https://github.com/arulrajnet/guacamole-compose/tree/v1.6.0)
 
 ## Key Features
 
